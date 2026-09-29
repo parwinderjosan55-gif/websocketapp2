@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "197374446609",
+    "project_id": "websocketapp2-5e3b1",
+    "storage_bucket": "websocketapp2-5e3b1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:197374446609:android:ab9ba7bf08d1e7d054b5b0",
+        "android_client_info": {
+          "package_name": "com.example.websocketapp2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXJdFZ8OUJrfKVoV-Xhf8UV5s-bXYQRZU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
