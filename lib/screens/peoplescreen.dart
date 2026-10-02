@@ -43,61 +43,45 @@ class _PeopleScreenState extends State<PeopleScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (dialogContext, setDialogState) {
-            return AlertDialog(
-              title: const Text("Start Chat by Email"),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
+        return StatefulBuilder(builder: (dialogContext, setDialogState) {
+            return AlertDialog(title: const Text("Start Chat by Email"),
+
+              content: Column(mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextField(
-                    controller: emailController,
-                    decoration: const InputDecoration(
-                      labelText: "User Email",
-                      hintText: "example@gmail.com",
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
-                  ),
+                  TextField(controller: emailController, decoration: const InputDecoration(
+                      labelText: "User Email", hintText: "example@gmail.com",
+                    border: OutlineInputBorder(),), keyboardType: TextInputType.emailAddress,),
                   if (isSearching) ...[
+
                     const SizedBox(height: 16),
                     const CircularProgressIndicator(),
                   ],
                 ],
               ),
               actions: [
-                TextButton(
-                  onPressed: isSearching ? null : () => Navigator.pop(dialogContext),
-                  child: const Text("Cancel"),
-                ),
-                ElevatedButton(
-                  onPressed: isSearching
-                      ? null
-                      : () async {
-                          final inputEmail = emailController.text.trim().toLowerCase();
+                TextButton(onPressed: isSearching ? null : () => Navigator.pop(dialogContext),
+                  child: const Text("Cancel"),),
+
+                ElevatedButton(onPressed: isSearching ? null : () async {
+
+                  final inputEmail = emailController.text.trim().toLowerCase();
                           if (inputEmail.isEmpty) return;
 
                           final messenger = ScaffoldMessenger.of(context);
                           final navigator = Navigator.of(context);
                           final dialogNavigator = Navigator.of(dialogContext);
-
                           final currentUser = _firebaseService.firebaseAuth.currentUser;
-                          if (currentUser != null &&
-                              currentUser.email?.toLowerCase() == inputEmail) {
-                            messenger.showSnackBar(
-                              const SnackBar(content: Text("You cannot chat with yourself")),
+
+                          if (currentUser != null && currentUser.email?.toLowerCase() == inputEmail) {
+                            messenger.showSnackBar(const SnackBar(content: Text("You cannot chat with yourself")),
                             );
                             return;
                           }
-
                           setDialogState(() => isSearching = true);
 
                           try {
-                            final query = await _firebaseService.firestore
-                                .collection('users')
-                                .where('email', isEqualTo: inputEmail)
-                                .get();
-
+                            final query = await _firebaseService.firestore.collection('users')
+                                .where('email', isEqualTo: inputEmail).get();
                             if (!mounted) return;
 
                             if (query.docs.isNotEmpty) {
@@ -108,23 +92,18 @@ class _PeopleScreenState extends State<PeopleScreen> {
 
                               _fetchUsers(); // Refresh list
 
-                              navigator.push(
-                                MaterialPageRoute(
-                                  builder: (context) => ChatPage(receiver: targetUser),
-                                ),
-                              );
+                              navigator.push(MaterialPageRoute(builder: (context) => ChatPage(receiver: targetUser),),);
+
+
                             } else {
                               setDialogState(() => isSearching = false);
-                              messenger.showSnackBar(
-                                SnackBar(content: Text("No user found with email $inputEmail")),
-                              );
+                              messenger.showSnackBar(SnackBar(content: Text("No user found with email $inputEmail")),);
                             }
+
                           } catch (e) {
                             if (!mounted) return;
                             setDialogState(() => isSearching = false);
-                            messenger.showSnackBar(
-                              SnackBar(content: Text("Error searching user: $e")),
-                            );
+                            messenger.showSnackBar(SnackBar(content: Text("Error searching user: $e")),);
                           }
                         },
                   child: const Text("Start Chat"),
@@ -139,36 +118,26 @@ class _PeopleScreenState extends State<PeopleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("People"),
+    return Scaffold(appBar: AppBar(title: const Text("People"),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _fetchUsers,
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _fetchUsers,),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _users.isEmpty
+          ? const Center(child: CircularProgressIndicator()) : _users.isEmpty
               ? const Center(child: Text("No other users found"))
-              : ListView.builder(
-                  itemCount: _users.length,
+              : ListView.builder(itemCount: _users.length,
                   itemBuilder: (context, index) {
-                    final user = _users[index];
+
+                final user = _users[index];
                     final displayName = user.name.isNotEmpty ? user.name : user.email;
-                    return ListTile(
-                      leading: const CircleAvatar(
-                        child: Icon(Icons.person),
-                      ),
+
+                    return ListTile(leading: const CircleAvatar(child: Icon(Icons.person),),
                       title: Text(displayName),
                       subtitle: Text(user.email),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
+                      Navigator.push(context, MaterialPageRoute(
                             builder: (context) => ChatPage(receiver: user),
                           ),
                         );

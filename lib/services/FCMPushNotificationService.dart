@@ -1,28 +1,35 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
+import 'package:websocketapp2/main.dart';
 import 'package:websocketapp2/services/firebaseservice.dart';
 import 'package:websocketapp2/services/notificationservice.dart';
-
-@pragma('vm:entry-point')
+                                                    // this code decide which how many type of notification can receive on phone
+                                                    // like screen should be off or locked and should be open so many thing
+@pragma('vm:entry-point')                          // this code about screen off and screen locked receive the notification
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   debugPrint("Handling a background message: ${message.messageId}");
-  try {
-    final service = notificationservice();
-    await service.init();
-    final title = message.notification?.title ?? message.data['title'] ?? "New Message";
-    final body = message.notification?.body ?? message.data['body'] ?? "";
-    await service.shownotification(
-      id: message.messageId.hashCode,
-      title: title,
-      body: body,
-    );
-  } catch (e) {
-    debugPrint("Background notification error: $e");
-  }
-}
+await notificationservice().shownotification(
+  title:message.notification?.title?? "new message",
+  body: message.notification?.body?? '',
+);
+   }
+
+   Future<void> main()async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler,);
+  await notificationservice().init();
+  runApp(const MyApp());
+   }                                               //end of this code
+
 
 class FcmService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
@@ -31,7 +38,7 @@ class FcmService {
   final String backendUrl = 'http://10.0.2.2:3000/send-notification';
 
   Future<void> init() async {
-    await notificationservice().init();
+    await notificationservice().init();          //initialize fcm code
 
     NotificationSettings settings = await _messaging.requestPermission(
       alert: true,
@@ -40,7 +47,7 @@ class FcmService {
     );
     debugPrint("Permission status: ${settings.authorizationStatus}");
 
-    String? token = await _messaging.getToken();
+    String? token = await _messaging.getToken();   //get this user fcm token
     debugPrint("FCM Token: $token");
 
     if (token != null) {
@@ -53,23 +60,24 @@ class FcmService {
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+
+    /*FirebaseMessaging.onMessage.listen((RemoteMessage message) { // receive notification when app is open
       debugPrint("Foreground message received: ${message.notification?.title}");
       final title = message.notification?.title ?? message.data['title'] ?? "New Message";
       final body = message.notification?.body ?? message.data['body'] ?? "";
       notificationservice().shownotification(title: title, body: body);
-    });
+    });*/
 
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {  // user tap on notification
       debugPrint("Notification clicked: ${message.messageId}");
-    });
+    });                                                                // here is the end of that type of notification  code
   }
 
   Future<void> _updateFCMToken(String token) async {
     try {
       final currentUser = _firebaseService.firebaseAuth.currentUser;
       if (currentUser != null) {
-        // Use SetOptions(merge: true) so it works reliably for ALL user accounts!
+
         await _firebaseService.firestore
             .collection('users')
             .doc(currentUser.uid)

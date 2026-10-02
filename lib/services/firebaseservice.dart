@@ -43,7 +43,7 @@ class FirebaseService {
     }
   }
 
-  Future<ChatMessage?> getchat(String uid) async {
+  Future<ChatMessageModel? > getchat(String uid) async {
     try {
       final DocumentSnapshot<Map<String, dynamic>> doc =
       await firestore.collection("users").doc(uid).get();
@@ -106,3 +106,5 @@ class FirebaseService {
         .snapshots();
   }
 }
+
+

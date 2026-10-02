@@ -37,5 +37,3 @@ class ChatMessageModel {
     );
   }
 }
-
-typedef ChatMessage = ChatMessageModel;

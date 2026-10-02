@@ -53,7 +53,9 @@ class notificationservice {
       playSound: true,
       enableVibration: true,
       visibility: NotificationVisibility.public,
+      category: AndroidNotificationCategory.message,
     );
+
     const DarwinNotificationDetails iosnotification = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
