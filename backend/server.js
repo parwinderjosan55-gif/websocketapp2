@@ -6,12 +6,28 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Download your Service Account Key from Firebase Console:
-// Project Settings -> Service accounts -> Generate new private key
-const serviceAccount = require('./serviceAccountKey.json');
+let serviceAccount;
+try {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  } else {
+    serviceAccount = require('./serviceAccountKey.json');
+  }
+} catch (error) {
+  console.error('Failed to load Firebase service account credentials:', error);
+}
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+if (serviceAccount) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+} else {
+  console.error('Firebase Admin SDK NOT initialized due to missing service account key.');
+}
+
+// Health check endpoint for Render
+app.get('/', (req, res) => {
+  res.send('FCM Push Notification Backend is running!');
 });
 
 // Endpoint to send push notifications
